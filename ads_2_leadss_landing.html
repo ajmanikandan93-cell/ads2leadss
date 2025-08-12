@@ -1,0 +1,161 @@
+<!--
+ads2leadss Landing Page (single-file HTML)
+Instructions: Save this as `ads2leadss_landing.html` and open in a browser.
+This simple landing page collects customer name and mobile number.
+On submit it: 1) validates inputs, 2) saves submission to localStorage, 3) opens your email client (mailto) with the details so you can receive them by email.
+Replace the MAIL_TO variable in the script with your email address to receive submissions via mailto.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ads2leadss — Digital Marketing Agency</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:#FF6B35;--bg:#f7fafc;--card:#ffffff;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial; margin:0; background:linear-gradient(180deg,#fdf6f0, #fff); color:#111}
+    .wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px}
+    .card{width:100%; max-width:920px; background:var(--card); border-radius:14px; box-shadow:0 8px 30px rgba(16,24,40,0.08); overflow:hidden; display:grid; grid-template-columns:1fr 420px}
+    .left{padding:40px 36px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:64px; height:64px; background:var(--accent); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:18px}
+    h1{margin:18px 0 6px; font-size:26px}
+    p.lead{margin:0 0 18px; color:var(--muted)}
+    ul.features{padding:0; margin:18px 0 28px; list-style:none; display:flex; gap:10px; flex-wrap:wrap}
+    ul.features li{background:#fff6f3;border:1px solid rgba(255,107,53,0.08); padding:8px 12px; border-radius:8px; color:var(--accent); font-weight:600}
+
+    .right{background:linear-gradient(180deg,#fff,#fff); padding:28px; border-left:1px solid #f2f4f7}
+    form{display:flex; flex-direction:column; gap:12px}
+    label{font-size:13px; color:var(--muted)}
+    input[type=text], input[type=tel]{padding:12px 14px; border-radius:10px; border:1px solid #e6e9ee; font-size:15px}
+    .row{display:flex; gap:10px}
+    .btn{background:var(--accent); color:white; padding:12px 14px; border-radius:10px; font-weight:700; border:0; cursor:pointer}
+    .btn.secondary{background:transparent; color:var(--accent); border:1px solid rgba(255,107,53,0.15)}
+    .note{font-size:13px; color:var(--muted)}
+    .small{font-size:13px}
+    .center{display:flex; align-items:center; justify-content:center}
+    .submissions{margin-top:18px; font-size:13px; color:var(--muted)}
+    footer{padding:14px 22px; text-align:center; color:var(--muted); font-size:13px}
+
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr;}
+      .right{border-left:0; border-top:1px solid #f2f4f7}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main">
+      <div class="left">
+        <div class="brand">
+          <div class="logo">A2L</div>
+          <div>
+            <div style="font-size:13px; color:var(--muted); font-weight:600">Digital Marketing Agency</div>
+            <div style="font-weight:800; font-size:18px">ads2leadss</div>
+          </div>
+        </div>
+
+        <h1>Grow your business with leads that convert</h1>
+        <p class="lead">We help small businesses in Tamil Nadu get targeted leads through Facebook & Google ads. Leave your details — we'll call you back within business hours.</p>
+
+        <ul class="features" aria-hidden>
+          <li>Lead Generation</li>
+          <li>Low Cost Ads</li>
+          <li>Local Targeting</li>
+          <li>Free Consultation</li>
+        </ul>
+
+        <p class="note">Why ads2leadss? 15+ years combined experience, Tamil Nadu-focused campaigns, transparent pricing.</p>
+      </div>
+
+      <div class="right">
+        <h2 style="margin:4px 0 8px">Get a free callback</h2>
+        <form id="leadForm" autocomplete="off">
+          <div>
+            <label for="name">Customer Name</label>
+            <input id="name" name="name" type="text" placeholder="உங்கள் பெயர் / Your name" required />
+          </div>
+
+          <div>
+            <label for="mobile">Mobile Number</label>
+            <input id="mobile" name="mobile" type="tel" placeholder="10-digit mobile number" required pattern="[0-9]{10}" />
+          </div>
+
+          <div class="row">
+            <button class="btn" type="submit">Request Callback</button>
+            <button class="btn secondary" type="button" id="clearBtn">Clear</button>
+          </div>
+
+          <div class="small note">We respect your privacy. Your number will be used only to contact you about your request.</div>
+
+          <div class="submissions" id="submissionsInfo"></div>
+        </form>
+
+        <div style="margin-top:16px; font-size:13px; color:var(--muted)">
+          Or call us directly: <strong>Replace-with-your-phone</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>© <span id="year"></span> ads2leadss — Built for beginners. Edit code anytime.</footer>
+
+  <script>
+    // --- Configuration: set your email here to receive mailto submissions ---
+    const MAIL_TO = 'replace@your-email.com'; // <-- change this to your email
+
+    // Helper: render year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const form = document.getElementById('leadForm');
+    const submissionsInfo = document.getElementById('submissionsInfo');
+
+    function updateSubmissionsInfo(){
+      const data = JSON.parse(localStorage.getItem('ads2leadss_submissions')||'[]');
+      submissionsInfo.textContent = data.length ? (data.length + ' submissions saved locally') : 'No local submissions yet';
+    }
+    updateSubmissionsInfo();
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+
+      if(!name){ alert('Please enter your name.'); return }
+      if(!/^\d{10}$/.test(mobile)){ alert('Please enter a valid 10-digit mobile number.'); return }
+
+      // Save to localStorage
+      const existing = JSON.parse(localStorage.getItem('ads2leadss_submissions')||'[]');
+      existing.unshift({name, mobile, ts: new Date().toISOString()});
+      localStorage.setItem('ads2leadss_submissions', JSON.stringify(existing));
+      updateSubmissionsInfo();
+
+      // Prepare mailto (opens user's email client)
+      const subject = encodeURIComponent('New lead from ads2leadss landing page');
+      const body = encodeURIComponent(`Name: ${name}%0AMobile: ${mobile}%0AReceived: ${new Date().toLocaleString()}`);
+      if(MAIL_TO && MAIL_TO.includes('@')){
+        window.location.href = `mailto:${MAIL_TO}?subject=${subject}&body=${body}`;
+      } else {
+        // If MAIL_TO not set, show the message so user can copy or use manually
+        alert('Lead saved locally.\n\n' + `Name: ${name}\nMobile: ${mobile}\n\nTip: Set your email in code (MAIL_TO) to open an email automatically.`);
+      }
+
+      // simple visual feedback
+      form.reset();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function(){
+      if(confirm('Clear local submissions and form?')){
+        localStorage.removeItem('ads2leadss_submissions');
+        updateSubmissionsInfo();
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
